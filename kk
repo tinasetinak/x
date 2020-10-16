@@ -111,16 +111,21 @@ sed -i "s/ipserver/$myip/g" /etc/squid3/squid.conf
 sed -i "s/ipserver/$myip/g" /etc/squid/squid.conf
 sed -i "s/ipserver/$myip/g" /etc/squid3/squid.conf
 
-# openvpn
-apt-get -y install openvpn
+
+# install openvpn
+apt-get install openvpn -y
+wget -O /etc/openvpn/openvpn.tar "https://raw.github.com/mappakkoe09/debian/master/conf/ovpn.tar"
 cd /etc/openvpn/
-wget -O openvpn.tar "https://raw.githubusercontent.com/mulzs/new/debian7/openvpn.tar"
-tar xf openvpn.tar;rm openvpn.tar
-#curl -O https://raw.githubusercontent.com/Angristan/openvpn-install/master/openvpn-install.sh
-#chmod +x openvpn-install.sh
-#./openvpn-install.sh
-wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
-chmod +x /etc/rc.local
+tar xf openvpn.tar
+wget -O /etc/openvpn/56.conf "https://raw.github.com/mappakkoe09/debian/master/conf/56.conf"
+service openvpn restart
+sysctl -w net.ipv4.ip_forward=1
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+wget -O /etc/iptables.conf "https://raw.github.com/mappakkoe09/debian/master/conf/iptables.conf"
+sed -i '$ i\iptables-restore < /etc/iptables.conf' /etc/rc.local
+cp /etc/openvpn/client.ovpn /home/vps/public_html/client.ovpn
+sed -i $myip2 /home/vps/public_html/client.ovpn
+sed -i "s/ports/55/" /home/vps/public_html/client.ovpn
 
 # nginx
 apt-get -y install nginx php-fpm php-mcrypt php-cli libexpat1-dev libxml-parser-perl
